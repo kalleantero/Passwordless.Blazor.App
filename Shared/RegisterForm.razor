@@ -1,0 +1,52 @@
+﻿
+@using Microsoft.JSInterop;
+@using Passwordless.Blazor.App.Models;
+
+@inject IJSRuntime JSRuntime
+@inject NavigationManager NavManager
+
+<div class="card">
+    <h4 class="card-header">Register</h4>
+    <div class="card-body">
+        <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+            <DataAnnotationsValidator />
+            <div class="form-group">
+                <label>Display name</label>
+                <InputText @bind-Value="model.Displayname" class="form-control" />
+                <ValidationMessage For="@(() => model.Displayname)" />
+            </div>
+            <div class="form-group">
+                <label>Username</label>
+                <InputText @bind-Value="model.Username" class="form-control" />
+                <ValidationMessage For="@(() => model.Username)" />
+            </div>
+            <button class="btn btn-primary">Register</button>
+            <NavLink href="/" class="btn btn-link">Cancel</NavLink>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    private PasswordlessUser model = new PasswordlessUser();
+    private bool loading;
+
+    private async void OnValidSubmit()
+    {
+        loading = true;
+        try
+        {
+            var token = await JSRuntime.InvokeAsync<string>("registerToken", model);
+
+            if(!string.IsNullOrEmpty(token))
+            {
+                // Prompt login after successfull registration
+                await JSRuntime.InvokeVoidAsync("signinWithDiscoverable");     
+            }
+        }
+        catch (Exception ex)
+        {
+            loading = false;
+            StateHasChanged();
+        }
+    }
+}

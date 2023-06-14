@@ -1,0 +1,32 @@
+﻿@using Microsoft.JSInterop;
+@inject IJSRuntime JSRuntime
+@inject NavigationManager NavManager
+
+<AuthorizeView Context="authContext">
+    <Authorized>
+        <p>Hello @authContext.User.Claims.First().Value</p>
+        <NavLink class="btn btn-link active" @onclick="Logout">Logout</NavLink>  
+    </Authorized>
+    <NotAuthorized>
+        <NavLink class="btn btn-link active" @onclick="Login">Login</NavLink>        
+        <NavLink class="btn btn-link active" @onclick="Register">Register</NavLink>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+
+    private async void Login()
+    {
+        await JSRuntime.InvokeVoidAsync("signinWithDiscoverable");     
+    }
+
+    private void Register()
+    {
+        NavManager.NavigateTo("/register");
+    }
+
+    private void Logout()
+    {
+        NavManager.NavigateTo("/logout");
+    }
+}
